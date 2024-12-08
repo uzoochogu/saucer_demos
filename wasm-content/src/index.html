@@ -1,29 +1,29 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WebView WebAssembly Demo</title>
-    <link rel="stylesheet" href="../style/style.css">
-</head>
-<body>
-    <img src="../assets/contributions.svg" class="svg-background" alt="">
+    <link rel="stylesheet" href="../style/style.css" />
+  </head>
+  <body>
+    <img src="../assets/contributions.svg" class="svg-background" alt="" />
     <div class="container">
-        <h1>WebAssembly Demo</h1>
-        <button id="btn" onclick="runWasm()">Run WebAssembly</button>
+      <h1>WebView WebAssembly Demo</h1>
+      <button id="btn" onclick="runWasm()">Run WebAssembly</button>
     </div>
 
     <script src="app.js"></script>
     <script type="module">
-        let wasmModule;
-        async function loadWasm() {
-            const module = await createModule();
-            wasmModule = module;
-            window.runWasm = () => {
-                wasmModule._runWasmFunction();
-            };
-        }
-        loadWasm();
+      let wasmModule;
+      async function loadWasm() {
+        const module = await createModule();
+        wasmModule = module;
+        window.runWasm = () => {
+          wasmModule._runWasmFunction();
+        };
+      }
+      loadWasm();
     </script>
-</body>
+  </body>
 </html>
