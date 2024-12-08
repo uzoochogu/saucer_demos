@@ -59,19 +59,19 @@ endfunction()
 
 # Define WASM targets
 add_wasm_target(wasm 
-    "${CMAKE_SOURCE_DIR}/src/wasm_app.cpp" 
+    "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_app.cpp" 
     "wasm-content"
     "-s WASM=1 -s EXPORTED_FUNCTIONS=['_runWasmFunction'] -s MODULARIZE=1 -s EXPORT_NAME=createModule -lembind -s USE_WEBGPU=1"
 )
 
 add_wasm_target(wasm_webgpu_js 
-    "${CMAKE_SOURCE_DIR}/src/wasm_webgpu_app_js.cpp" 
+    "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_webgpu_app_js.cpp" 
     "wasm-webgpu-js-content"
     "-s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s JSPI=1 -s EXPORTED_RUNTIME_METHODS=['UTF8ToString'] -O3 --bind"
 )
 
 add_wasm_target(wasm_webgpu 
-    "${CMAKE_SOURCE_DIR}/src/wasm_webgpu_app.cpp" 
+    "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_webgpu_app.cpp" 
     "wasm-webgpu-content"
     "-s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=['_runWasmFunction'] -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -O3 --bind"
 )
@@ -86,9 +86,9 @@ add_saucer_embed(wasm_webgpu_js "wasm-webgpu-js-content" "wasm-webgpu-js")
 add_saucer_embed(wasm_webgpu "wasm-webgpu-content" "wasm-webgpu")
 
 # Native executables
-add_executable(wasm_app src/wasm.cpp)
-add_executable(wasm_webgpu_js_app src/wasm_webgpu_js.cpp)
-add_executable(wasm_webgpu_app src/wasm_webgpu.cpp)
+add_executable(wasm_app saucer-src/wasm.cpp)
+add_executable(wasm_webgpu_js_app saucer-src/wasm_webgpu_js.cpp)
+add_executable(wasm_webgpu_app saucer-src/wasm_webgpu.cpp)
 
 # Configure executables
 foreach(TARGET wasm_app wasm_webgpu_js_app wasm_webgpu_app)
