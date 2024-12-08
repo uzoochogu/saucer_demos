@@ -1,15 +1,21 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
-    <script src="app.js"></script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wasm C++ WebGPU Triangle Demo</title>
+    <link rel="stylesheet" href="../style/style.css" />
   </head>
   <body>
-    <h1>WebGPU Triangle Example</h1>
-    <canvas id="canvas" width="800" height="600"></canvas>
+    <div class="container">
+      <h1>WebGPU Triangle Example</h1>
+      <canvas id="canvas" width="800" height="600"></canvas>
+      <button id="btn" onclick="runWasm()">Run WebGPU Triangle</button>
+    </div>
+    <script src="app.js"></script>
     <script>
-      let wasmModule;
-      
       Module = {
-        onRuntimeInitialized: function() {
+        onRuntimeInitialized: function () {
           if (!navigator.gpu) {
             alert("WebGPU is not supported in your browser!");
             return;
@@ -19,9 +25,8 @@
             const renderer = new wasmModule.WebGPURenderer();
             renderer.initialize();
           };
-        }
+        },
       };
     </script>
-    <button id="btn" onclick="runWasm()">Run WebGPU Triangle</button>
   </body>
 </html>
