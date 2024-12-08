@@ -1,0 +1,12 @@
+.vs*
+
+# build artifacts
+build*/
+out/
+generated/
+
+
+# scrap and old files
+old*
+scrap*
+

@@ -1,0 +1,27 @@
+<html>
+  <head>
+    <script src="app.js"></script>
+  </head>
+  <body>
+    <h1>WebGPU Triangle Example (JS version)</h1>
+    <canvas id="canvas" width="800" height="600"></canvas>
+    <script>
+      let wasmModule;
+      
+      Module = {
+        onRuntimeInitialized: function() {
+          if (!navigator.gpu) {
+            alert("WebGPU is not supported in your browser!");
+            return;
+          }
+          wasmModule = Module;
+          window.runWasm = () => {
+            const renderer = new wasmModule.WebGPURenderer();
+            renderer.initialize();
+          };
+        }
+      };
+    </script>
+    <button id="btn" onclick="runWasm()">Run WebGPU Triangle</button>
+  </body>
+</html>

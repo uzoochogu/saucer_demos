@@ -1,0 +1,18 @@
+<html>
+  <body>
+    <h1>WebView with WebAssembly!</h1>
+    <script src="app.js"></script>
+    <script type="module">
+      let wasmModule;
+      async function loadWasm() {
+        const module = await createModule();
+        wasmModule = module;
+        window.runWasm = () => {
+          wasmModule._runWasmFunction();
+        };
+      }
+      loadWasm();
+    </script>
+    <button id="btn" onclick="runWasm()">Run WebAssembly</button>
+  </body>
+</html>
