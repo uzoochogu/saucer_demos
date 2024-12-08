@@ -1,19 +1,20 @@
 cmake_minimum_required(VERSION 3.28)
-
-
 project(saucer_demos LANGUAGES CXX VERSION 1.0)
 
-# Build output organization
+# --------------------------------------------------------------------------------------------------------
+# Build Configuration 
+# --------------------------------------------------------------------------------------------------------
 set(WASM_BUILD_DIR "${CMAKE_BINARY_DIR}/wasm-builds")
 set(EMBED_OUTPUT_DIR "${CMAKE_SOURCE_DIR}/generated")
 
-# Include paths for generated headers
 include_directories(
     ${EMBED_OUTPUT_DIR}
     ${CMAKE_SOURCE_DIR}
 )
 
-# Fetch Saucer
+# --------------------------------------------------------------------------------------------------------
+# Dependencies
+# --------------------------------------------------------------------------------------------------------
 include(FetchContent)
 FetchContent_Declare(
     saucer
@@ -22,7 +23,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(saucer)
 
-# WASM compilation function
+# --------------------------------------------------------------------------------------------------------
+# Build Functions
+# --------------------------------------------------------------------------------------------------------
+
+# Compiles C++ source to WebAssembly using emscripten
 function(add_wasm_target TARGET_NAME SOURCE_FILE OUTPUT_DIR)
     set(OUTPUT_PATH "${WASM_BUILD_DIR}/${OUTPUT_DIR}/src/app.js")
     string(REPLACE " " ";" EMCC_FLAGS_LIST "${ARGN}")
@@ -40,7 +45,7 @@ function(add_wasm_target TARGET_NAME SOURCE_FILE OUTPUT_DIR)
     add_custom_target(${TARGET_NAME}_wasm DEPENDS ${OUTPUT_PATH})
 endfunction()
 
-# Saucer embed function
+# Embeds WebAssembly resources using saucer-cli
 function(add_saucer_embed TARGET_NAME WASM_DIR OUTPUT_DIR)
     set(EMBED_PATH "${EMBED_OUTPUT_DIR}/${OUTPUT_DIR}")
     
@@ -57,40 +62,50 @@ function(add_saucer_embed TARGET_NAME WASM_DIR OUTPUT_DIR)
     add_custom_target(${TARGET_NAME}_embed DEPENDS "${EMBED_PATH}/all.hpp")
 endfunction()
 
-# Define WASM targets
+# --------------------------------------------------------------------------------------------------------
+# WebAssembly Targets
+# --------------------------------------------------------------------------------------------------------
+
+# Basic WASM example
 add_wasm_target(wasm 
     "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_app.cpp" 
     "wasm-content"
     "-s WASM=1 -s EXPORTED_FUNCTIONS=['_runWasmFunction'] -s MODULARIZE=1 -s EXPORT_NAME=createModule -lembind -s USE_WEBGPU=1"
 )
 
+# WebGPU example with JS bindings
 add_wasm_target(wasm_webgpu_js 
     "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_webgpu_app_js.cpp" 
     "wasm-webgpu-js-content"
     "-s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s JSPI=1 -s EXPORTED_RUNTIME_METHODS=['UTF8ToString'] -O3 --bind"
 )
 
+# WebGPU example with C++ API
 add_wasm_target(wasm_webgpu 
     "${CMAKE_SOURCE_DIR}/emscripten-src/wasm_webgpu_app.cpp" 
     "wasm-webgpu-content"
     "-s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=['_runWasmFunction'] -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -O3 --bind"
 )
 
+# Copy web static files
 file(COPY ${CMAKE_SOURCE_DIR}/wasm-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-content/)
 file(COPY ${CMAKE_SOURCE_DIR}/wasm-webgpu-js-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-webgpu-js-content/)
 file(COPY ${CMAKE_SOURCE_DIR}/wasm-webgpu-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-webgpu-content/)
 
-# Add embed targets
+# --------------------------------------------------------------------------------------------------------
+# Resource Embedding
+# --------------------------------------------------------------------------------------------------------
 add_saucer_embed(wasm "wasm-content" "wasm")
 add_saucer_embed(wasm_webgpu_js "wasm-webgpu-js-content" "wasm-webgpu-js")
 add_saucer_embed(wasm_webgpu "wasm-webgpu-content" "wasm-webgpu")
 
-# Native executables
+# --------------------------------------------------------------------------------------------------------
+# Native Executables
+# --------------------------------------------------------------------------------------------------------
 add_executable(wasm_app saucer-src/wasm.cpp)
 add_executable(wasm_webgpu_js_app saucer-src/wasm_webgpu_js.cpp)
 add_executable(wasm_webgpu_app saucer-src/wasm_webgpu.cpp)
 
-# Configure executables
 foreach(TARGET wasm_app wasm_webgpu_js_app wasm_webgpu_app)
     target_compile_features(${TARGET} PRIVATE cxx_std_23)
     set_target_properties(${TARGET} PROPERTIES 
@@ -101,7 +116,7 @@ foreach(TARGET wasm_app wasm_webgpu_js_app wasm_webgpu_app)
     target_link_libraries(${TARGET} PRIVATE saucer::saucer)
 endforeach()
 
-# Add dependencies
+# Link dependencies
 add_dependencies(wasm_app wasm_embed)
 add_dependencies(wasm_webgpu_js_app wasm_webgpu_js_embed)
 add_dependencies(wasm_webgpu_app wasm_webgpu_embed)
