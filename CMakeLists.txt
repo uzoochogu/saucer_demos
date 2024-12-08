@@ -35,8 +35,14 @@ function(add_wasm_target TARGET_NAME SOURCE_FILE OUTPUT_DIR)
     add_custom_command(
         OUTPUT ${OUTPUT_PATH}
         COMMAND ${CMAKE_COMMAND} -E make_directory "${WASM_BUILD_DIR}/${OUTPUT_DIR}/src"
+        # Copy index.html and all static files to the build directory
+        COMMAND ${CMAKE_COMMAND} -E copy_directory 
+            "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/"
+            "${WASM_BUILD_DIR}/${OUTPUT_DIR}/"
         COMMAND emcc ${SOURCE_FILE} -o ${OUTPUT_PATH} ${EMCC_FLAGS_LIST}
-        DEPENDS ${SOURCE_FILE}
+        DEPENDS 
+            ${SOURCE_FILE}
+            "${CMAKE_SOURCE_DIR}/${OUTPUT_DIR}/"
         COMMENT "Building WebAssembly target ${TARGET_NAME}"
         VERBATIM
         USES_TERMINAL
@@ -86,11 +92,6 @@ add_wasm_target(wasm_webgpu
     "wasm-webgpu-content"
     "-s WASM=1 -s USE_WEBGPU=1 -s NO_EXIT_RUNTIME=1 -s EXPORTED_FUNCTIONS=['_runWasmFunction'] -s EXPORTED_RUNTIME_METHODS=['ccall','cwrap'] -O3 --bind"
 )
-
-# Copy web static files
-file(COPY ${CMAKE_SOURCE_DIR}/wasm-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-content/)
-file(COPY ${CMAKE_SOURCE_DIR}/wasm-webgpu-js-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-webgpu-js-content/)
-file(COPY ${CMAKE_SOURCE_DIR}/wasm-webgpu-content/ DESTINATION ${WASM_BUILD_DIR}/wasm-webgpu-content/)
 
 # --------------------------------------------------------------------------------------------------------
 # Resource Embedding
